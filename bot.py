@@ -4,7 +4,7 @@ import asyncio
 import config
 
 # Description and Intents
-description = 'Discord Bot with Leaderboard Feature'
+description = 'Circus Casino misc. utility bot'
 intents = discord.Intents.default()
 intents.members = True  # Necessary for member-related information
 intents.message_content = True  # Necessary for reading message content
