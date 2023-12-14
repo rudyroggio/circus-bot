@@ -51,5 +51,17 @@ class PlayerCommands(commands.Cog):
         else:
             await ctx.send(f"No balance information found for {member.display_name}.")
 
+    @commands.has_role("pit bosses")
+    @commands.command()
+    async def updateBal(self, ctx, member: discord.Member, amount: int):
+        database = load_database()
+        if str(member.id) not in database:
+            await ctx.send(f"{member.display_name} is not in the database.")
+            return
+        database[str(member.id)]['total_net'] += amount
+        save_database(database)
+        await ctx.send(f"Updated {member.display_name}'s balance by {amount}.")
+
+
 async def setup(bot):
     await bot.add_cog(PlayerCommands(bot))
