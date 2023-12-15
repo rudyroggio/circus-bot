@@ -24,19 +24,32 @@ class PlayerCommands(commands.Cog):
         await ctx.send("Database has been initiated.")
 
     @commands.command()
-    async def id(self, ctx, player_id: str):
+    async def id(self, ctx, player_id: str, member: discord.Member = None):
         database = load_database()
 
-        if str(ctx.author.id) not in database:
-            database[str(ctx.author.id)] = {
-                "discord_username": str(ctx.author), 
+        # Determine the target member based on the command usage
+        if member:
+            # Check if the user has the required role to change another user's ID
+            if any(role.name in ["pit bosses", "eyes in the sky"] for role in ctx.author.roles):
+                target_member = member
+            else:
+                await ctx.send("You do not have permission to change another user's ID.")
+                return
+        else:
+            target_member = ctx.author
+
+        user_id = str(target_member.id)
+
+        if user_id not in database:
+            database[user_id] = {
+                "discord_username": str(target_member), 
                 "player_id": "", 
                 "total_net": 0
             }
 
-        database[str(ctx.author.id)]['player_id'] = player_id
+        database[user_id]['player_id'] = player_id
         save_database(database)
-        await ctx.send(f'Player ID updated for {ctx.author.display_name}')
+        await ctx.send(f'Player ID updated for {target_member.display_name}')
 
     @commands.command()
     async def balance(self, ctx, member: discord.Member = None):
@@ -51,16 +64,16 @@ class PlayerCommands(commands.Cog):
         else:
             await ctx.send(f"No balance information found for {member.display_name}.")
 
-    @commands.has_role("pit bosses")
+    @commands.has_any_role("pit bosses", "eyes in the sky")
     @commands.command()
-    async def updateBal(self, ctx, member: discord.Member, amount: int):
+    async def setBal(self, ctx, member: discord.Member, amount: int):
         database = load_database()
         if str(member.id) not in database:
             await ctx.send(f"{member.display_name} is not in the database.")
             return
-        database[str(member.id)]['total_net'] += amount
+        database[str(member.id)]['total_net'] = amount
         save_database(database)
-        await ctx.send(f"Updated {member.display_name}'s balance by {amount}.")
+        await ctx.send(f"Updated {member.display_name}'s balance to {amount}.")
 
 
 async def setup(bot):
