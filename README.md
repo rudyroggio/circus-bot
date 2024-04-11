@@ -24,3 +24,12 @@ A bot designed for managing casino-style games and leaderboards within Discord. 
    ```bash
    git clone https://github.com/rudyroggio/circus-bot.git
    cd circus-bot
+2. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. Run `bot.py` -- make sure token field is set.
+
+# TODO
+TODO if a new player joins, once they add their <id>, check all ledgers for past games and update db accordingly so that past info isn't lost
+
