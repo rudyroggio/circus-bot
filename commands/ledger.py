@@ -24,7 +24,7 @@ class LedgerCommands(commands.Cog):
 
             csv_file_path = await self._download_csv(game_id)
             if csv_file_path:
-                self._process_and_update_ledger(csv_file_path, game_id)
+                self._process_and_update_ledger(csv_file_path)
                 self._record_game_id(game_id)
                 await ctx.send(f'Ledger processed and database updated for game ID: {game_id}')
                 await ctx.send('The ledger has been officially closed. Thank you.')
@@ -49,7 +49,7 @@ class LedgerCommands(commands.Cog):
                         await file.write(await response.read())
                     return file_path
 
-    def _process_and_update_ledger(self, file_path, game_id):
+    def _process_and_update_ledger(self, file_path):
         df = pd.read_csv(file_path)
         grouped_df = self._group_ledger_data(df)
         database = load_database()
