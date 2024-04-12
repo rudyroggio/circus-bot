@@ -30,7 +30,7 @@ class PlayerCommands(commands.Cog):
                 # Determine the target member based on the command usage
                 if member:
                         # Check if the user has the required role to change another user's ID
-                        if any(role.name in ["pit bosses", "eyes in the sky"] for role in ctx.author.roles):
+                        if any(role.name in ["pit bosses"] for role in ctx.author.roles):
                                 target_member = member
                         else:
                                 await ctx.send("You do not have permission to change another user's ID.")
@@ -65,7 +65,7 @@ class PlayerCommands(commands.Cog):
                 else:
                         await ctx.send(f"No balance information found for {member.display_name}.")
 
-        @commands.has_any_role("pit bosses", "eyes in the sky")
+        @commands.has_any_role("pit bosses")
         @commands.command()
         async def setBal(self, ctx, member: discord.Member, amount: int):
                 database = load_database()

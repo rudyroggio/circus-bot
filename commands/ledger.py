@@ -13,7 +13,7 @@ class LedgerCommands(commands.Cog):
         os.makedirs('data', exist_ok=True)
         self.game_ids_file_path = os.path.join('data', self.game_ids_file)
 
-    @commands.has_any_role("pit bosses", "eyes in the sky")
+    @commands.has_any_role("pit bosses")
     @commands.command()
     async def ledger(self, ctx, url: str):
         try:
