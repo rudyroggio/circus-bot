@@ -55,7 +55,7 @@ class PlayerCommands(commands.Cog):
                 player_net = 0
                 path = "ledgers/*.csv"
                 for fname in glob.glob(path):
-                        df = pd.read_csv("ledgers/" + fname)
+                        df = pd.read_csv(fname)
                         grouped_df = df.groupby(['player_nickname', 'player_id'])['net'].sum().reset_index()
                         grouped_df['net'] = grouped_df['net'].astype(float) / 100
                         player_net += grouped_df[player_id]['net']
