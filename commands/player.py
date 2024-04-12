@@ -8,20 +8,21 @@ class PlayerCommands(commands.Cog):
 
         @commands.has_role("pit bosses")
         @commands.command()
-        async def initialize(self, ctx):
+        async def init(self, ctx):
                 database = load_database()
 
                 for guild in self.bot.guilds:
                         for member in guild.members:
                                 if str(member.id) not in database:
                                         database[str(member.id)] = {
-                                                "discord_username": str(member), 
+                                                "discord_username": str(member.display_name), 
                                                 "player_id": "", 
                                                 "total_net": 0
                                         }
 
                 save_database(database)
                 await ctx.send("Database has been initiated.")
+
 
         @commands.command()
         async def id(self, ctx, player_id: str, member: discord.Member = None):
@@ -42,7 +43,7 @@ class PlayerCommands(commands.Cog):
 
                 if user_id not in database:
                         database[user_id] = {
-                                "discord_username": str(target_member), 
+                                "discord_username": str(target_member.display_name), 
                                 "player_id": "", 
                                 "total_net": 0
                         }
@@ -51,8 +52,9 @@ class PlayerCommands(commands.Cog):
                 save_database(database)
                 await ctx.send(f'Player ID updated for {target_member.display_name}')
 
+
         @commands.command()
-        async def balance(self, ctx, member: discord.Member = None):
+        async def bal(self, ctx, member: discord.Member = None):
                 if member is None:
                         member = ctx.author
 
@@ -64,6 +66,7 @@ class PlayerCommands(commands.Cog):
                         await ctx.send(f"{member.display_name}'s balance: {member_round}")
                 else:
                         await ctx.send(f"No balance information found for {member.display_name}.")
+
 
         @commands.has_any_role("pit bosses")
         @commands.command()

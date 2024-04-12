@@ -1,7 +1,7 @@
 import json
 import os
 
-DATABASE_PATH = "database.json"
+DATABASE_PATH = "database/database.json"
 
 def load_database():
     if os.path.exists(DATABASE_PATH):
