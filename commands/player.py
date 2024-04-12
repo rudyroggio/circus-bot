@@ -51,18 +51,19 @@ class PlayerCommands(commands.Cog):
                         }
 
                 database[user_id]['player_id'] = player_id      
-
+                
                 player_net = 0
                 path = "ledgers/*.csv"
                 for fname in glob.glob(path):
                         df = pd.read_csv(fname)
-                        grouped_df = df.groupby(['player_nickname', 'player_id'])['net'].sum().reset_index()
-                        grouped_df['net'] = grouped_df['net'].astype(float) / 100
-                        player_net += grouped_df[player_id]['net']
+                        if player_id in df['player_id'].values:
+                                grouped_df = df.groupby(['player_id'])['net'].sum().reset_index()
+                                net_amount = grouped_df.loc[grouped_df['player_id'] == player_id, 'net']
+                                if not net_amount.empty:
+                                        player_net += net_amount.iloc[0] / 100
                 database[user_id]['total_net'] = player_net
                 save_database(database)
                 await ctx.send(f'Player ID updated for {target_member.display_name}')
-
 
         @commands.command()
         async def bal(self, ctx, member: discord.Member = None):
