@@ -17,8 +17,8 @@ class PlayerCommands(commands.Cog):
                         for member in guild.members:
                                 if str(member.id) not in database:
                                         database[str(member.id)] = {
-                                                "discord_username": str(member.display_name), 
-                                                "player_id": "", 
+                                                "discord_username": str(member.display_name),
+                                                "player_id": "",
                                                 "total_net": 0
                                         }
 
@@ -45,13 +45,13 @@ class PlayerCommands(commands.Cog):
 
                 if user_id not in database:
                         database[user_id] = {
-                                "discord_username": str(target_member.display_name), 
-                                "player_id": "", 
+                                "discord_username": str(target_member.display_name),
+                                "player_id": "",
                                 "total_net": 0
                         }
 
-                database[user_id]['player_id'] = player_id      
-                
+                database[user_id]['player_id'] = player_id
+
                 player_net = 0
                 path = "ledgers/*.csv"
                 for fname in glob.glob(path):
@@ -91,6 +91,41 @@ class PlayerCommands(commands.Cog):
                 save_database(database)
                 await ctx.send(f"Updated {member.display_name}'s balance to {amount}.")
 
+        @commands.has_any_role("pit bosses")
+        @commands.command()
+        async def addBal(self, ctx, member: discord.Member, amount: float):
+                database = load_database()
+                user_id = str(member.id)
+
+                if user_id not in database:
+                        await ctx.send(f"{member.display_name} is not in the database.")
+                        return
+
+                # Ensure total_net key exists, if not set it to 0
+                current_balance = database[user_id].get('total_net', 0)
+                database[user_id]['total_net'] = current_balance + amount
+                save_database(database)
+                await ctx.send(f"Added {amount} to {member.display_name}'s balance. New balance: {database[user_id]['total_net']}.")
+
+        @commands.has_any_role("pit bosses")
+        @commands.command()
+        async def subBal(self, ctx, member: discord.Member, amount: float):
+                database = load_database()
+                user_id = str(member.id)
+
+                if user_id not in database:
+                        await ctx.send(f"{member.display_name} is not in the database.")
+                        return
+
+                # Ensure total_net key exists, if not set it to 0
+                current_balance = database[user_id].get('total_net', 0)
+                if current_balance < amount:
+                        await ctx.send(f"Cannot subtract {amount} from {member.display_name}'s balance. Insufficient funds.")
+                        return
+
+                database[user_id]['total_net'] = current_balance - amount
+                save_database(database)
+                await ctx.send(f"Subtracted {amount} from {member.display_name}'s balance. New balance: {database[user_id]['total_net']}.")
 
 async def setup(bot):
         await bot.add_cog(PlayerCommands(bot))
