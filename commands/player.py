@@ -3,6 +3,9 @@ from discord.ext import commands
 from database import load_database, save_database
 import glob
 import pandas as pd
+from datetime import timedelta
+import re
+import asyncio
 
 class PlayerCommands(commands.Cog):
         def __init__(self, bot):
@@ -126,6 +129,42 @@ class PlayerCommands(commands.Cog):
                 database[user_id]['total_net'] = current_balance - amount
                 save_database(database)
                 await ctx.send(f"Subtracted {amount} from {member.display_name}'s balance. New balance: {database[user_id]['total_net']}.")
+
+
+        @commands.command()
+        async def selfmute(self, ctx, duration: str):
+        # Regex to parse the duration input
+                match = re.match(r"(\d+)([mhd])$", duration)
+                if not match:
+                        await ctx.send("Invalid duration format. Please use the format [number][m/h/d], e.g., 20m, 5h, or 1d.")
+                        return
+
+                amount, unit = match.groups()
+                amount = int(amount)
+
+                # Calculate mute duration
+                if unit == 'm':
+                        mute_duration = timedelta(minutes=amount)
+                elif unit == 'h':
+                        mute_duration = timedelta(hours=amount)
+                elif unit == 'd':
+                        mute_duration = timedelta(days=amount)
+
+                # Get the Muted role from the server
+                muted_role = discord.utils.get(ctx.guild.roles, name="Muted")
+                if muted_role is None:
+                        await ctx.send("Muted role does not exist. Please create it and configure its permissions correctly.")
+                        return
+
+                # Assign the Muted role to the author
+                await ctx.author.add_roles(muted_role)
+                await ctx.send(f"You have been muted for {amount}{unit}.")
+
+                # Schedule the removal of the Muted role after the mute duration
+                await asyncio.sleep(mute_duration.total_seconds())
+                await ctx.author.remove_roles(muted_role)
+                await ctx.send(f"{ctx.author.display_name}, you have been unmuted.")
+
 
 async def setup(bot):
         await bot.add_cog(PlayerCommands(bot))
