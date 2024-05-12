@@ -66,10 +66,17 @@ class LedgerCommands(commands.Cog):
     def _record_game_id(self, game_id):
         with open(self.game_ids_file_path, 'a') as file:
             file.write(game_id + '\n')
-            
+
     def _group_ledger_data(self, df):
+        df['net'] = df['net'].astype(str)  # Ensure net is treated as string for manipulation
+        contains_decimal = df['net'].apply(lambda x: '.' in x).any()
         grouped_df = df.groupby(['player_nickname', 'player_id'])['net'].sum().reset_index()
-        grouped_df['net'] = grouped_df['net'].astype(float) / 100
+
+        if contains_decimal:
+            grouped_df['net'] = grouped_df['net'].astype(float) / 100
+        else:
+            grouped_df['net'] = grouped_df['net'].astype(float)
+
         return grouped_df
 
     def _update_database(self, database, grouped_df):

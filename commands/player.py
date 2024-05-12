@@ -6,6 +6,7 @@ import pandas as pd
 from datetime import timedelta
 import re
 import asyncio
+import os
 
 class PlayerCommands(commands.Cog):
         def __init__(self, bot):
@@ -164,6 +165,38 @@ class PlayerCommands(commands.Cog):
                 await asyncio.sleep(mute_duration.total_seconds())
                 await ctx.author.remove_roles(muted_role)
                 await ctx.send(f"{ctx.author.display_name}, you have been unmuted.")
+
+
+
+        @commands.has_role("pit bosses")
+        @commands.command()
+        async def reload(self, ctx):
+                database = load_database()
+
+                # Initialize a directory to read CSV files
+                ledger_dir = "ledgers"
+                os.makedirs(ledger_dir, exist_ok=True)
+
+                # Process each ledger file
+                for ledger_file in os.listdir(ledger_dir):
+                        if ledger_file.endswith(".csv"):
+                                # Construct the full path to the ledger file
+                                file_path = os.path.join(ledger_dir, ledger_file)
+                                # Read the CSV file into a DataFrame
+                                df = pd.read_csv(file_path)
+                                # Group by player_id and sum the net values
+                                grouped_df = df.groupby("player_id")["net"].sum().reset_index()
+
+                                # Update the database with the summed values
+                                for index, row in grouped_df.iterrows():
+                                        player_id = str(row["player_id"])
+                                        net_gain = float(row["net"])
+                                        if player_id in database:
+                                                database[player_id]["total_net"] += net_gain
+
+                save_database(database)
+                # Notify the user
+                await ctx.send("All balances have been reloaded based on the ledger files.")
 
 
 async def setup(bot):
