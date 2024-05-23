@@ -31,5 +31,5 @@ A bot designed for managing casino-style games and leaderboards within Discord. 
 3. Run `bot.py` -- make sure token field is set.
 
 # TODO
-[X] TODO if a new player joins, once they add their <id>, check all ledgers for past games and update db accordingly so that past info isn't lost
-
+- [x] if a new player joins, once they add their <id>, check all ledgers for past games and update db accordingly so that past info isn't lost
+- add a feature to parse game files and calculate vpip etc
